@@ -321,11 +321,53 @@ def climate_suggestions(fp, climate_zone):
     return suggestions
 
 
+def _map_ml_class_to_repo(ml_name, bedroom_counter):
+    """Map class names from the trained ML model to the repo's room taxonomy."""
+    if ml_name == "bedroom":
+        # The trained VAE uses a single 'bedroom' class; the repo distinguishes
+        # bedroom_01/02/03. Assign sequentially.
+        idx = bedroom_counter[0]
+        bedroom_counter[0] += 1
+        return f"bedroom_0{min(idx + 1, 3)}"
+    return ml_name
+
+
+def _ml_boxes_to_floorplan(boxes, plot_w, plot_h):
+    """Convert a list of ML pipeline boxes into a FloorPlan with Room objects."""
+    rooms = []
+    bedroom_counter = [0]
+    for b in boxes:
+        repo_name = _map_ml_class_to_repo(b["name"], bedroom_counter)
+        rooms.append(Room(repo_name,
+                          round(float(b["x"]), 2),
+                          round(float(b["y"]), 2),
+                          round(float(b["w"]), 2),
+                          round(float(b["h"]), 2)))
+    return FloorPlan(rooms, plot_w, plot_h)
+
+
 def generate_population(room_names, plot_w, plot_h, n=20):
-    """Generate n candidate floor plans with different seeds."""
+    """Generate n candidate floor plans.
+
+    Uses the trained Graph VAE + Geometry Predictor pipeline when the model
+    weights are on disk; otherwise falls back to the rule-based packer.
+    """
+    # Try the trained-model pipeline
+    try:
+        from core import ml_pipeline
+        if ml_pipeline.is_ready():
+            target_rooms = max(4, min(12, len(room_names)))
+            ml_plans = ml_pipeline.generate_population(
+                target_rooms=target_rooms, plot_w=plot_w, plot_h=plot_h, n=n)
+            return [_ml_boxes_to_floorplan(p["boxes"], plot_w, plot_h)
+                    for p in ml_plans]
+    except Exception as e:
+        # Surface a console warning but don't crash — fall back to rules.
+        print(f"[generator] ML pipeline unavailable, falling back to rules: {e}")
+
     plans = []
     for i in range(n):
-        fp = generate_floorplan(room_names, plot_w, plot_h, seed=i*7+42)
+        fp = generate_floorplan(room_names, plot_w, plot_h, seed=i * 7 + 42)
         plans.append(fp)
     return plans
 

@@ -22,12 +22,24 @@ Shows **Top 5 optimised floor plans** ranked by a multi-objective fitness score.
 pip install -r requirements.txt
 ```
 
-### Step 2 — Run the app
+### Step 2 — Download the trained model weights
+Copy the three checkpoint files from Google Drive into the `models/` folder:
+
+```
+models/graph_vae.pth            ← Graph VAE (200 epochs, loss 2.15)
+models/geometry_predictor.pth   ← Geometry Predictor (500 epochs, loss 0.38)
+models/best.pt                  ← YOLOv8 room detector (optional, mAP50 ≈ 54%)
+```
+
+If these files are missing, the app still runs but falls back to a rule-based
+rectangle packer instead of the trained AI pipeline.
+
+### Step 3 — Run the app
 ```bash
 streamlit run app.py
 ```
 
-### Step 3 — Open in browser
+### Step 4 — Open in browser
 ```
 http://localhost:8501
 ```
@@ -37,15 +49,33 @@ http://localhost:8501
 ## Project Structure
 
 ```
-floorplan_project/
+vastu-plan-generation/
 ├── app.py                  ← Main Streamlit GUI
 ├── requirements.txt
+├── models/                 ← Trained weights (downloaded from Drive)
+│   ├── graph_vae.pth
+│   ├── geometry_predictor.pth
+│   └── best.pt
 ├── core/
 │   ├── constants.py        ← Room definitions, Vastu rules, cost rates
-│   ├── generator.py        ← Floor plan generation + all scoring functions
+│   ├── generator.py        ← Bridges ML pipeline → FloorPlan objects + scoring
+│   ├── ml_models.py        ← GraphVAE + GeometryPredictor class definitions
+│   ├── ml_pipeline.py      ← Rejection-sampling pipeline (Cells E + F port)
 │   └── visualizer.py       ← Matplotlib floor plan rendering
 └── README.md
 ```
+
+---
+
+## Pipeline numbers (training + validation)
+
+| Stage              | Setting                                | Result            |
+| ------------------ | -------------------------------------- | ----------------- |
+| YOLOv8 detector    | 1.2k images, 11 classes                | mAP50 ≈ 54%       |
+| Graph VAE          | 3283 RAG graphs, 200 epochs            | Final loss 2.15   |
+| Geometry Predictor | 500 epochs, cosine LR + adjacency loss | Final MSE 0.38    |
+| End-to-end         | Rejection sampling (HouseGAN++ style)  | 100/100 valid     |
+|                    | Underlying acceptance rate             | 23% (~4 tries)    |
 
 ---
 

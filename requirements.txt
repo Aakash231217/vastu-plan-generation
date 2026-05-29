@@ -6,3 +6,6 @@ pymoo>=0.6.0
 Pillow>=10.0.0
 networkx>=3.0
 reportlab>=4.0.0
+
+# Trained AI pipeline (Graph VAE + Geometry Predictor)
+torch>=2.1.0
