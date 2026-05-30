@@ -1,5 +1,26 @@
 # ── Room Definitions ──────────────────────────────────────────────────────────
+# Mandatory rooms in every plan (per professor's spec)
+COMMON_ROOMS = [
+    "external_staircase",
+    "foyer",
+    "living_room",
+    "kitchen",
+    "dining_room",
+    "utility_area",
+    "common_bathroom",
+    "master_bedroom",
+    "attached_bathroom",
+]
 
+# Optional rooms the user can opt-in via checkboxes
+OPTIONAL_ROOMS = [
+    "bedroom_01",
+    "bedroom_02",
+    "bedroom_03",
+    "balcony",
+    "study",
+    "pooja_room",
+]
 ROOM_CONFIGS = {
     "1BHK": ["master_bedroom", "kitchen", "living_room", "bathroom", "foyer"],
     "2BHK": ["master_bedroom", "bedroom_01", "kitchen", "living_room",
@@ -30,9 +51,34 @@ ROOM_MIN_AREA = {
     "pooja_room":        30,
     "utility_area":      35,
     "study":             80,
+    "external_staircase":40,
 }
 
 ROOM_MAX_AREA = {k: v * 2.2 for k, v in ROOM_MIN_AREA.items()}
+
+# Realistic (width, height) ranges in feet for a 30x40 / 40x60 Indian plot.
+# Used by the rule-based perimeter layout so rooms aren't 19' x 24' bedrooms.
+ROOM_SIZE_RANGES = {
+    "external_staircase": ((6, 8),   (8, 11)),
+    "foyer":              ((5, 7),   (6, 8)),
+    "living_room":        ((12, 16), (14, 20)),
+    "dining_room":        ((9, 12),  (10, 14)),
+    "kitchen":            ((8, 11),  (10, 14)),
+    "utility_area":       ((4, 6),   (6, 9)),
+    "master_bedroom":     ((11, 14), (12, 15)),
+    "attached_bathroom":  ((5, 6),   (6, 8)),
+    "bedroom_01":         ((10, 12), (10, 13)),
+    "bedroom_02":         ((9, 11),  (10, 12)),
+    "bedroom_03":         ((9, 11),  (9, 11)),
+    "common_bathroom":    ((5, 6),   (6, 8)),
+    "pooja_room":         ((4, 6),   (4, 6)),
+    "balcony":            ((4, 6),   (8, 12)),
+    "study":              ((8, 10),  (9, 11)),
+    "internal_corridor":  ((3, 4),   (10, 30)),
+}
+
+CORRIDOR_WIDTH_MIN = 3.0
+CORRIDOR_WIDTH_MAX = 4.0
 
 # Room display colors
 ROOM_COLORS = {
@@ -52,6 +98,7 @@ ROOM_COLORS = {
     "pooja_room":       "#E65100",
     "utility_area":     "#4E342E",
     "study":            "#283593",
+    "external_staircase":"#455A64",
 }
 
 # Required adjacencies (room_a, room_b, priority)
@@ -78,7 +125,7 @@ VASTU_RULES = [
     ("Toilet Avoid NE", "attached_bathroom",["W","NW","S"],         5),
     ("Living Room",     "living_room",     ["N","E","NE"],          4),
     ("Pooja Room",      "pooja_room",      ["NE"],                  5),
-    ("Staircase",       "internal_corridor",["S","SW"],             4),
+    ("Staircase",       "external_staircase",["S","SW","W"],       4),
     ("Common Bathroom", "common_bathroom", ["W","NW","S"],          3),
     ("Balcony",         "balcony",         ["N","E","NE"],          3),
     ("Study",           "study",           ["N","NE"],              3),

@@ -1,0 +1,14 @@
+{
+  "n_plans": 100,
+  "pct_valid": 0.0,
+  "breakdown": {
+    "no_overlap": 0,
+    "inside_boundary": 100,
+    "min_size": 100,
+    "adjacency_ratio": 40,
+    "adjacency_ok": 0,
+    "connected": 94,
+    "aspect_ok": 100
+  },
+  "mean_vastu": 0.29966666666666664
+}

@@ -1,0 +1,560 @@
+{
+  "timestamp": "2026-05-29T04:23:11.246283",
+  "dataset": "3506 Indian floorplan graphs extracted from 3661 images",
+  "models_trained": {
+    "yolo": {
+      "weights": "/content/drive/MyDrive/yolo_runs/room_detector_v2/weights/best.pt",
+      "classes": 11,
+      "images": 1200,
+      "mAP50_approx": "~54%"
+    },
+    "graph_vae": {
+      "weights": "/content/drive/MyDrive/yolo_runs/graph_vae.pth",
+      "final_loss": 2.15,
+      "epochs": 200,
+      "training_graphs": 3283
+    },
+    "geometry_predictor": {
+      "weights": "/content/drive/MyDrive/yolo_runs/geometry_predictor.pth",
+      "final_loss": 0.38,
+      "epochs": 500
+    }
+  },
+  "pipeline_metrics": {
+    "plans_generated": 88,
+    "final_delivered_validity_pct": 100.0,
+    "mean_adjacency_ratio": 0.7593811491538763,
+    "mean_vastu_score": 0.29337121212121214,
+    "mean_cost_lakhs": 29.974029541015625,
+    "underlying_acceptance_rate_pct": 23.0
+  },
+  "top5_plans": [
+    {
+      "rank": 1,
+      "rooms": [
+        "living_room",
+        "kitchen",
+        "master_bedroom",
+        "common_bathroom",
+        "common_bathroom",
+        "bedroom",
+        "study",
+        "bedroom"
+      ],
+      "vastu_pct": 80.0,
+      "adjacency_pct": 87.5,
+      "cost_lakhs": 29.9,
+      "fitness": 0.795,
+      "boxes": [
+        {
+          "name": "living_room",
+          "x": 3.89,
+          "y": 23.07,
+          "w": 13.22,
+          "h": 17.1
+        },
+        {
+          "name": "kitchen",
+          "x": 26.94,
+          "y": 28.3,
+          "w": 10.06,
+          "h": 15.99
+        },
+        {
+          "name": "master_bedroom",
+          "x": 3.0,
+          "y": 7.35,
+          "w": 11.33,
+          "h": 15.25
+        },
+        {
+          "name": "common_bathroom",
+          "x": 12.99,
+          "y": 11.49,
+          "w": 6.95,
+          "h": 11.04
+        },
+        {
+          "name": "common_bathroom",
+          "x": 18.03,
+          "y": 22.57,
+          "w": 8.65,
+          "h": 13.64
+        },
+        {
+          "name": "bedroom",
+          "x": 6.09,
+          "y": 40.94,
+          "w": 10.2,
+          "h": 16.06
+        },
+        {
+          "name": "study",
+          "x": 17.26,
+          "y": 36.83,
+          "w": 10.41,
+          "h": 16.64
+        },
+        {
+          "name": "bedroom",
+          "x": 20.28,
+          "y": 3.0,
+          "w": 9.44,
+          "h": 12.71
+        },
+        {
+          "name": "corridor",
+          "x": 3.0,
+          "y": 3.0,
+          "w": 17.0,
+          "h": 8.0,
+          "is_corridor": 1.0
+        },
+        {
+          "name": "corridor",
+          "x": 20.0,
+          "y": 3.0,
+          "w": 17.0,
+          "h": 25.0,
+          "is_corridor": 1.0
+        },
+        {
+          "name": "corridor",
+          "x": 3.0,
+          "y": 41.0,
+          "w": 3.0,
+          "h": 16.0,
+          "is_corridor": 1.0
+        },
+        {
+          "name": "corridor",
+          "x": 17.0,
+          "y": 45.0,
+          "w": 20.0,
+          "h": 12.0,
+          "is_corridor": 1.0
+        }
+      ]
+    },
+    {
+      "rank": 2,
+      "rooms": [
+        "living_room",
+        "kitchen",
+        "master_bedroom",
+        "common_bathroom",
+        "study",
+        "common_bathroom",
+        "staircase",
+        "bedroom"
+      ],
+      "vastu_pct": 60.0,
+      "adjacency_pct": 88.9,
+      "cost_lakhs": 34.3,
+      "fitness": 0.71,
+      "boxes": [
+        {
+          "name": "living_room",
+          "x": 3.0,
+          "y": 20.76,
+          "w": 13.74,
+          "h": 17.97
+        },
+        {
+          "name": "kitchen",
+          "x": 26.33,
+          "y": 16.85,
+          "w": 10.67,
+          "h": 17.37
+        },
+        {
+          "name": "master_bedroom",
+          "x": 5.95,
+          "y": 3.0,
+          "w": 11.78,
+          "h": 17.23
+        },
+        {
+          "name": "common_bathroom",
+          "x": 18.12,
+          "y": 8.08,
+          "w": 7.73,
+          "h": 12.36
+        },
+        {
+          "name": "study",
+          "x": 27.56,
+          "y": 35.05,
+          "w": 9.44,
+          "h": 15.02
+        },
+        {
+          "name": "common_bathroom",
+          "x": 16.24,
+          "y": 21.22,
+          "w": 9.59,
+          "h": 15.5
+        },
+        {
+          "name": "staircase",
+          "x": 4.94,
+          "y": 39.53,
+          "w": 10.99,
+          "h": 17.47
+        },
+        {
+          "name": "bedroom",
+          "x": 16.33,
+          "y": 37.01,
+          "w": 10.55,
+          "h": 16.98
+        },
+        {
+          "name": "corridor",
+          "x": 3.0,
+          "y": 3.0,
+          "w": 2.0,
+          "h": 17.0,
+          "is_corridor": 1.0
+        },
+        {
+          "name": "corridor",
+          "x": 18.0,
+          "y": 3.0,
+          "w": 19.0,
+          "h": 13.0,
+          "is_corridor": 1.0
+        },
+        {
+          "name": "corridor",
+          "x": 3.0,
+          "y": 39.0,
+          "w": 1.0,
+          "h": 18.0,
+          "is_corridor": 1.0
+        },
+        {
+          "name": "corridor",
+          "x": 16.0,
+          "y": 51.0,
+          "w": 21.0,
+          "h": 6.0,
+          "is_corridor": 1.0
+        }
+      ]
+    },
+    {
+      "rank": 3,
+      "rooms": [
+        "living_room",
+        "kitchen",
+        "master_bedroom",
+        "common_bathroom",
+        "bedroom",
+        "bedroom",
+        "bedroom",
+        "staircase"
+      ],
+      "vastu_pct": 50.0,
+      "adjacency_pct": 90.0,
+      "cost_lakhs": 25.6,
+      "fitness": 0.696,
+      "boxes": [
+        {
+          "name": "living_room",
+          "x": 3.0,
+          "y": 29.9,
+          "w": 13.22,
+          "h": 13.49
+        },
+        {
+          "name": "kitchen",
+          "x": 5.0,
+          "y": 3.0,
+          "w": 10.17,
+          "h": 13.01
+        },
+        {
+          "name": "master_bedroom",
+          "x": 4.06,
+          "y": 16.55,
+          "w": 11.33,
+          "h": 12.97
+        },
+        {
+          "name": "common_bathroom",
+          "x": 15.36,
+          "y": 7.5,
+          "w": 6.79,
+          "h": 8.52
+        },
+        {
+          "name": "bedroom",
+          "x": 5.24,
+          "y": 43.84,
+          "w": 10.42,
+          "h": 13.16
+        },
+        {
+          "name": "bedroom",
+          "x": 26.49,
+          "y": 37.64,
+          "w": 10.51,
+          "h": 13.15
+        },
+        {
+          "name": "bedroom",
+          "x": 15.63,
+          "y": 16.36,
+          "w": 9.44,
+          "h": 11.53
+        },
+        {
+          "name": "staircase",
+          "x": 16.07,
+          "y": 36.98,
+          "w": 10.29,
+          "h": 13.23
+        },
+        {
+          "name": "corridor",
+          "x": 3.0,
+          "y": 3.0,
+          "w": 1.0,
+          "h": 26.0,
+          "is_corridor": 1.0
+        },
+        {
+          "name": "corridor",
+          "x": 16.0,
+          "y": 3.0,
+          "w": 21.0,
+          "h": 34.0,
+          "is_corridor": 1.0
+        },
+        {
+          "name": "corridor",
+          "x": 3.0,
+          "y": 44.0,
+          "w": 2.0,
+          "h": 13.0,
+          "is_corridor": 1.0
+        },
+        {
+          "name": "corridor",
+          "x": 16.0,
+          "y": 51.0,
+          "w": 21.0,
+          "h": 6.0,
+          "is_corridor": 1.0
+        }
+      ]
+    },
+    {
+      "rank": 4,
+      "rooms": [
+        "living_room",
+        "kitchen",
+        "master_bedroom",
+        "common_bathroom",
+        "bedroom",
+        "common_bathroom",
+        "bedroom",
+        "bedroom"
+      ],
+      "vastu_pct": 50.0,
+      "adjacency_pct": 88.9,
+      "cost_lakhs": 25.8,
+      "fitness": 0.691,
+      "boxes": [
+        {
+          "name": "living_room",
+          "x": 3.0,
+          "y": 26.96,
+          "w": 13.22,
+          "h": 14.96
+        },
+        {
+          "name": "kitchen",
+          "x": 26.53,
+          "y": 27.05,
+          "w": 9.84,
+          "h": 13.66
+        },
+        {
+          "name": "master_bedroom",
+          "x": 14.48,
+          "y": 13.45,
+          "w": 11.33,
+          "h": 13.33
+        },
+        {
+          "name": "common_bathroom",
+          "x": 23.11,
+          "y": 4.24,
+          "w": 6.52,
+          "h": 8.9
+        },
+        {
+          "name": "bedroom",
+          "x": 15.53,
+          "y": 27.04,
+          "w": 10.8,
+          "h": 15.05
+        },
+        {
+          "name": "common_bathroom",
+          "x": 29.88,
+          "y": 3.0,
+          "w": 7.12,
+          "h": 9.91
+        },
+        {
+          "name": "bedroom",
+          "x": 15.19,
+          "y": 42.66,
+          "w": 10.38,
+          "h": 14.34
+        },
+        {
+          "name": "bedroom",
+          "x": 25.93,
+          "y": 13.82,
+          "w": 9.44,
+          "h": 12.66
+        },
+        {
+          "name": "corridor",
+          "x": 3.0,
+          "y": 3.0,
+          "w": 26.0,
+          "h": 23.0,
+          "is_corridor": 1.0
+        },
+        {
+          "name": "corridor",
+          "x": 36.0,
+          "y": 13.0,
+          "w": 1.0,
+          "h": 14.0,
+          "is_corridor": 1.0
+        },
+        {
+          "name": "corridor",
+          "x": 26.0,
+          "y": 41.0,
+          "w": 11.0,
+          "h": 16.0,
+          "is_corridor": 1.0
+        },
+        {
+          "name": "corridor",
+          "x": 3.0,
+          "y": 42.0,
+          "w": 12.0,
+          "h": 15.0,
+          "is_corridor": 1.0
+        }
+      ]
+    },
+    {
+      "rank": 5,
+      "rooms": [
+        "living_room",
+        "kitchen",
+        "master_bedroom",
+        "common_bathroom",
+        "staircase",
+        "balcony",
+        "common_bathroom",
+        "balcony"
+      ],
+      "vastu_pct": 40.0,
+      "adjacency_pct": 100.0,
+      "cost_lakhs": 31.2,
+      "fitness": 0.682,
+      "boxes": [
+        {
+          "name": "living_room",
+          "x": 7.97,
+          "y": 20.75,
+          "w": 13.22,
+          "h": 18.2
+        },
+        {
+          "name": "kitchen",
+          "x": 22.48,
+          "y": 36.68,
+          "w": 10.35,
+          "h": 17.6
+        },
+        {
+          "name": "master_bedroom",
+          "x": 17.8,
+          "y": 3.0,
+          "w": 11.33,
+          "h": 16.15
+        },
+        {
+          "name": "common_bathroom",
+          "x": 29.22,
+          "y": 7.7,
+          "w": 6.6,
+          "h": 10.87
+        },
+        {
+          "name": "staircase",
+          "x": 3.0,
+          "y": 39.24,
+          "w": 10.45,
+          "h": 17.76
+        },
+        {
+          "name": "balcony",
+          "x": 22.11,
+          "y": 20.51,
+          "w": 9.4,
+          "h": 15.65
+        },
+        {
+          "name": "common_bathroom",
+          "x": 30.09,
+          "y": 19.91,
+          "w": 6.91,
+          "h": 11.59
+        },
+        {
+          "name": "balcony",
+          "x": 12.24,
+          "y": 39.23,
+          "w": 10.21,
+          "h": 17.31
+        },
+        {
+          "name": "corridor",
+          "x": 3.0,
+          "y": 3.0,
+          "w": 14.0,
+          "h": 36.0,
+          "is_corridor": 1.0
+        },
+        {
+          "name": "corridor",
+          "x": 30.0,
+          "y": 3.0,
+          "w": 7.0,
+          "h": 16.0,
+          "is_corridor": 1.0
+        },
+        {
+          "name": "corridor",
+          "x": 23.0,
+          "y": 32.0,
+          "w": 14.0,
+          "h": 25.0,
+          "is_corridor": 1.0
+        }
+      ]
+    }
+  ]
+}

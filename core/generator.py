@@ -321,24 +321,11 @@ def climate_suggestions(fp, climate_zone):
     return suggestions
 
 
-def _map_ml_class_to_repo(ml_name, bedroom_counter):
-    """Map class names from the trained ML model to the repo's room taxonomy."""
-    if ml_name == "bedroom":
-        # The trained VAE uses a single 'bedroom' class; the repo distinguishes
-        # bedroom_01/02/03. Assign sequentially.
-        idx = bedroom_counter[0]
-        bedroom_counter[0] += 1
-        return f"bedroom_0{min(idx + 1, 3)}"
-    return ml_name
-
-
 def _ml_boxes_to_floorplan(boxes, plot_w, plot_h):
     """Convert a list of ML pipeline boxes into a FloorPlan with Room objects."""
     rooms = []
-    bedroom_counter = [0]
     for b in boxes:
-        repo_name = _map_ml_class_to_repo(b["name"], bedroom_counter)
-        rooms.append(Room(repo_name,
+        rooms.append(Room(b["name"],
                           round(float(b["x"]), 2),
                           round(float(b["y"]), 2),
                           round(float(b["w"]), 2),
@@ -346,50 +333,94 @@ def _ml_boxes_to_floorplan(boxes, plot_w, plot_h):
     return FloorPlan(rooms, plot_w, plot_h)
 
 
-def generate_population(room_names, plot_w, plot_h, n=20):
-    """Generate n candidate floor plans.
+def generate_population(room_names, plot_w, plot_h, n=20,
+                          required_rooms=None, optional_rooms=None,
+                          road_side="S"):
+    """Generate n candidate plans.
 
-    Uses the trained Graph VAE + Geometry Predictor pipeline when the model
-    weights are on disk; otherwise falls back to the rule-based packer.
+    Returns a list of (raw_fp, optimised_fp) tuples so the UI can compare the
+    AI's untouched output against the Vastu-optimised + space-tiled version.
+    Falls back to the rule-based packer if the trained weights aren't present.
     """
     # Try the trained-model pipeline
     try:
         from core import ml_pipeline
         if ml_pipeline.is_ready():
-            target_rooms = max(4, min(12, len(room_names)))
             ml_plans = ml_pipeline.generate_population(
-                target_rooms=target_rooms, plot_w=plot_w, plot_h=plot_h, n=n)
-            return [_ml_boxes_to_floorplan(p["boxes"], plot_w, plot_h)
+                plot_w=plot_w, plot_h=plot_h, n=n,
+                required_rooms=required_rooms,
+                optional_rooms=optional_rooms,
+                road_side=road_side)
+            return [(_ml_boxes_to_floorplan(p["raw_boxes"], plot_w, plot_h),
+                     _ml_boxes_to_floorplan(p["boxes"], plot_w, plot_h))
                     for p in ml_plans]
     except Exception as e:
-        # Surface a console warning but don't crash — fall back to rules.
         print(f"[generator] ML pipeline unavailable, falling back to rules: {e}")
 
     plans = []
     for i in range(n):
         fp = generate_floorplan(room_names, plot_w, plot_h, seed=i * 7 + 42)
-        plans.append(fp)
+        plans.append((fp, fp))   # no optimisation in fallback
     return plans
 
 
-def rank_plans(plans, selected_vastu_rules, finishing, climate_zone,
-               w1=0.25, w2=0.15, w3=0.10, w4=0.30, w5=0.15, w6=0.05):
-    """Score and rank all plans. Returns sorted list."""
-    results = []
-    for fp in plans:
-        aq = score_adjacency_quality(fp)
-        se = score_spatial_efficiency(fp)
-        lc = score_layout_compactness(fp)
-        vs, vastu_details = score_vastu(fp, selected_vastu_rules)
-        ac = score_area_compliance(fp, [r.name for r in fp.rooms])
-        cost = estimate_cost(fp, finishing)
-        cost_norm = max(0, 1 - cost / 8_000_000)  # normalise against 80L max
-        fitness = (w1*aq + w2*se + w3*lc + w4*vs + w5*ac + w6*cost_norm)
-        fp.scores = {
-            "AQ": aq, "SE": se, "LC": lc, "VS": vs,
-            "AC": ac, "Cost": cost, "Fitness": round(fitness, 4),
-            "vastu_details": vastu_details,
-        }
-        results.append(fp)
-    results.sort(key=lambda f: f.scores["Fitness"], reverse=True)
-    return results
+def score_space_usage(fp, road_side: str = "S") -> float:
+    """SU — fraction of the buildable (inner-setback) area actually covered
+    by rooms. 1.0 means zero wasted space, which is the design objective.
+    Setbacks: 2 ft on road_side, 1 ft on the other three sides."""
+    sb_road, sb_other = 2.0, 1.0
+    left   = sb_road if road_side == "W" else sb_other
+    right  = sb_road if road_side == "E" else sb_other
+    bottom = sb_road if road_side == "S" else sb_other
+    top    = sb_road if road_side == "N" else sb_other
+    inner_w = max(fp.plot_w - left - right, 1e-6)
+    inner_h = max(fp.plot_h - bottom - top, 1e-6)
+    inner_area = inner_w * inner_h
+    used = sum(r.area for r in fp.rooms)
+    return round(min(used / inner_area, 1.0), 3)
+
+
+def _score_one(fp, selected_vastu_rules, weights):
+    w_aq, w_vs, w_su, w_ac = weights
+    aq = score_adjacency_quality(fp)
+    se = score_spatial_efficiency(fp)
+    lc = score_layout_compactness(fp)
+    vs, vastu_details = score_vastu(fp, selected_vastu_rules)
+    ac = score_area_compliance(fp, [r.name for r in fp.rooms])
+    su = score_space_usage(fp)
+    fitness = w_aq * aq + w_vs * vs + w_su * su + w_ac * ac
+    fp.scores = {
+        "AQ": aq, "SE": se, "LC": lc, "VS": vs, "AC": ac, "SU": su,
+        "Fitness": round(fitness, 4),
+        "vastu_details": vastu_details,
+    }
+    return fp
+
+
+def rank_plans(plans, selected_vastu_rules,
+               w_aq=0.25, w_vs=0.35, w_su=0.30, w_ac=0.10):
+    """Score and rank plans. Accepts either a list of FloorPlan (legacy) or a
+    list of (raw, optimised) tuples. Returns a list of dicts:
+        {"raw": raw_fp, "optimised": opt_fp, "fitness_gain": float}
+    sorted by the OPTIMISED plan's fitness, descending.
+
+    Objectives (cost & climate intentionally removed):
+        AQ (adjacency) + VS (Vastu) + SU (space usage) + AC (area compliance)
+    """
+    weights = (w_aq, w_vs, w_su, w_ac)
+    pairs = []
+    for item in plans:
+        if isinstance(item, tuple):
+            raw_fp, opt_fp = item
+        else:
+            raw_fp = opt_fp = item
+        _score_one(raw_fp, selected_vastu_rules, weights)
+        _score_one(opt_fp, selected_vastu_rules, weights)
+        pairs.append({
+            "raw": raw_fp,
+            "optimised": opt_fp,
+            "fitness_gain": round(
+                opt_fp.scores["Fitness"] - raw_fp.scores["Fitness"], 4),
+        })
+    pairs.sort(key=lambda p: p["optimised"].scores["Fitness"], reverse=True)
+    return pairs
